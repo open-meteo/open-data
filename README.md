@@ -1,24 +1,85 @@
 # Open-Meteo on AWS Open Data
 
-**AWS Bucket Name and Region: s3://open-meteo; eu-west-1**
+**AWS Bucket Name and Region: [s3://openmeteo](https://openmeteo.s3.amazonaws.com/index.html#data/); us-west-2**
 
-Open-Meteo integrates high-resolution weather models from well-known weather services, delivering a rapid weather API. Real-time weather forecasts are unified within a time-series database that covers both historical and future weather data.
+Open-Meteo integrates weather models from well-known weather services, delivering a rapid weather API. Real-time weather forecasts are unified within a time-series database that covers both historical and future weather data. Open-Meteo is designed to analyse long time-series of weather data for individual locations.
 
-The database, made available through the [AWS Open Data Sponsorship program](#), is composed of individual files for various weather models, weather variables, and time intervals.
+The database, made available through the [AWS Open Data Sponsorship program](#).
 
-The following weather services and models are available
-- NOAA
-    - GFS in 0.125° resolution
-    - HRRR
+Weather datasets are sourced from the following national weather services:
+- NOAA NCEP
 - DWD
 - ECMWF
 - Environment Canada
 - MeteoFrance
-- ERA5 / other archive data
-- Climate data
-- Wave models
-- Air quality models
-- TODO prepare table with all NWS and models
+- JMA
+- Met Norway
+- Copernicus ERA5
+- Copernicus Atmosphere Monitoring Service
+- CMIPS Climate data
+
+## Weather Models
+
+All available data can be explored using the [S3 explorer](https://openmeteo.s3.amazonaws.com/index.html#data/).
+
+### Digital Elevation Models
+
+| Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
+|-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
+| copernicus_dem90                    | Global                           | 90 m    | -       | -        | -  | -                  | -        | 2023-12-15      |
+
+### Weather Forecast Models
+
+
+| Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
+|-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
+| dwd_icon                    | Global                           | 0.1° (~11 km)    | Hourly       | 7.5 days        | Every 6 hours  | 49                  | 5 (18 levels)        | 2023-12-15      |
+| dwd_icon_eu                 | Europe                           | 0.0625° (~7 km)  | Hourly       | 5 days          | Every 3 hours  | 42                  | 5 (17 levels)        | 2023-12-15      |
+| dwd_icon_d2                 | Central Europe                   | 0.02° (~2 km)    | Hourly       | 2 days          | Every 3 hours  | 44                  | 5 (11 levels)        | 2023-12-15      |
+| dwd_icon_d2_15min           | "                                | "                | 15-Minutely  | "               | "              | 8                   | -                    | 2023-12-15      |
+| ncep_gfs013                 | Global                           | 0.11° (~13 km)   | Hourly       | 16 days         | Every 6 hours  | 27                  | -                    | 2023-12-15      |
+| ncep_gfs025                 | Global                           | 0.25° (~25 km)   | Hourly       | 16 days         | Every 6 hours  | 11                  | 7 (38 levels)        | 2023-12-15      |
+| ncep_hrrr_conus             | U.S. Conus                       | 3 km             | Hourly       | 2 days          | Every hour     | 23                  | 7 (39 levels)        | 2023-12-15      |
+| ncep_hrrr_conus_15min       | "                                | "                | 15-Minutely  | "               | "              | 12                  | -                    | 2023-12-15      |
+| meteofrance_arpege_world    | Global                           | 0.5° (~55 km)    | 3-Hourly     | 4 days          | Every 6 hours  | 29                  | 6 (23 levels)        | 2023-12-15      |
+| meteofrance_arpege_europe   | Europe                           | 0.1° (~11 km)    | Hourly       | 4 days          | Every 6 hours  | 29                  | 6 (23 levels)        | 2023-12-15      |
+| meteofrance_arome_france    | France                           | 0.025° (~2.5 km) | Hourly       | 42 hours        | Every 6 hours  | 29                  | 6 (24 levels)        | 2023-12-15      |
+| meteofrance_arome_france_hd | "                                | 0.01° (~1.5 km)  | "            | "               | "              | 12                  | -                    | 2023-12-15      |
+| ecmwf_ifs04                 | Global                           | 0.4 (~44 km)     | 3-Hourly     | 10 days         | Every 6 hours  | 14                  | 7 (9 levels)         | 2023-12-15      |
+| cmc_gem_gdps                | Global                           | 0.15° (~15 km)   | 3-Hourly     | 10 days         | Every 12 hours | 24                  | 5 (31 levels)        | 2023-12-15      |
+| cmc_gem_rdps                | North America, North Pole        | 10 km            | Hourly       | 3.5 days        | Every 6 hours  | 24                  | 5 (31 levels)        | 2023-12-15      |
+| cmc_gem_hrdps               | Canada, Northern US              | 2.5 km           | Hourly       | 2 days          | Every 6 hours  | 24                  | 5 (28 levels)        | 2023-12-15      |
+| jma_gsm                     | Global                           | 0.5° (~55 km)    | 6-Hourly     | 11 days         | Every 6 hours  | 8                   | 6 (11 levels)        | 2023-12-15      |
+| jma_msm                     | Japan, Korea                     | 0.05° (~5 km)    | Hourly       | 4 days          | Every 3 hours  | 11                  | -                    | 2023-12-15      |
+| metno_nordic_pp             | Norway, Denmark, Sweden, Finland | 1 km             | Hourly       | 2.5 days        | Every hour     | 9                   | -                    | 2023-12-15      |
+
+### Marine Wave Models
+
+| Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
+|-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
+| dwd_gwam                    | Global                           | 0.25° (~25 km)   | Hourly       | 7.5 days        | Every 12 hours | 11                  | -                    | 2023-12-15      |
+| dwd_ewam                    | Europe                           | 0.05° (~5 km)    | Hourly       | 4 days          | Every 12 hours | 11                  | -                    | 2023-12-15      |
+| copernicus_era5_ocean       | Global                           | 0.5° (~50 km)    | Hourly       | 5 days delay    | Every 24 hours | 5                   | -                    | 2023-12-15      |
+
+### Air Quality Models
+
+| Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
+|-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
+| cams_global                 | Global                           | 0.4 (~44 km)     | Hourly       | 4.5 days        | Every 12 hours | 10                  | -                    | 2023-12-15      |
+| cams_europe                 | Europe                           | 0.1 (~11 km)     | Hourly       | 4 days          | Every 12 hours | 14                  | -                    | 2023-12-15      |
+
+### Historical Weather Data
+
+TBA
+
+### Ensemble Weather Models
+
+TBA
+
+### Climate Models
+
+TBA
+
 
 
 ## Data Organization
@@ -30,9 +91,9 @@ Bucket contents:
 - `README.md`
 
 URL components:
-- `model`: All data is grouped by weather model. E.g. `gfs012` or `era5_land`
-- `weather-variable`. Each model contains multiple weather variables. E.g. `temperature_2m` or `relative_humidity`. Some weather variables like `wind_speed_10m` are calculated by the API, but `wind_u_component_10m` and `wind_v_component_10m` are stored.
-- `time`: For each variable, data is split into time-interface. This can be an entire year for historical data, or chunks of 1-2 weeks of data. An entire year is specified like `year_2010.om` while chunks of varying size use arbitrary indices like `chunk_927382.om`
+- `model`: All data is grouped by weather model. E.g. `ncep_gfs013` or `dwd_icon_eu`
+- `weather-variable`. Each model contains multiple weather variables. E.g. `temperature_2m` or `relative_humidity_2m`. Some weather variables like `wind_speed_10m` are calculated by the API, but `wind_u_component_10m` and `wind_v_component_10m` are stored.
+- `time`: For each variable, data is split by time. This can be an entire year for historical data, or chunks of 1-2 weeks of data. An entire year is specified like `year_2010.om` while chunks of varying size use arbitrary indices like `chunk_927382.om`
 
 
 ## Updates to Real-time Weather Forecasts
@@ -50,7 +111,7 @@ Open-Meteo provides a free API for quick data retrieval without the need to down
 1. **Research with Past Data:**
 Conducting intensive analyses on millions of events with varying locations and time steps is facilitated by having data available locally or on a dedicated high-performance VM instance. With Open-Meteo on AWS Open Data, you can download temperature data for the past 2 years at the full 9 km ECMWF IFS resolution within minutes. Basic steps include:
 - Installing the Open-Meteo Docker image `docker pull ghcr.io/open-meteo/open-meteo`
-- Download archived ECMWF data for temperature from AWS `docker run open-meteo download-s3 ecmwf_ifs temperature --year 2022,2023` (roughly 8 GB)
+- Download archived ECMWF data for temperature from AWS `docker run open-meteo sync ecmwf_ifs temperature_2m --past-days 730` (roughly 8 GB)
 - Launch your local API endpoint `docker run -p 8080:8080 open-meteo serve`
 - Get data for individual coordinates `curl "http://<instance_ip>:8080/v1/forecast?latitude=47.1&longitude=8.4&hourly=temperature_2m&start_date=20220101&end_date=20231031"`
 - Note: Docker commands are exemplary. Follow the [Tutorial for downloading historical weather data](./tutorial_download_era5/) to get it working quickly.
@@ -58,7 +119,7 @@ Conducting intensive analyses on millions of events with varying locations and t
 2. **Running Your Own Weather API:**
 If you require an extensive amount of weather data through an API daily and wish to run your own weather API, you can obtain up-to-date weather data from Open-Meteo on AWS Open Data. The Open-Meteo Docker container can listen for newly published data and keep your local database current. Similar to using past weather data:
 - Install the Open-Meteo Docker image
-- Start the data synchronization for a given weather model `docker run open-meteo sync-s3 gfs012 temperature,relative_humidity,wind_u_component_10m,wind_v_component_10m --past_days 3`
+- Start the data synchronization for a given weather model `docker run open-meteo sync ncep_gfs013 temperature_2m,relative_humidity_2m,wind_u_component_10m,wind_v_component_10m --past_days 3`
 - Launch the API instance and obtain the latest forecast from your new API endpoint
 - To help you in setting up your own weather API you can follow [this tutorial](./tutorial_realtime_weather_api/) to setup your own weather API on AWS with Elastic File System (EFS) to seamlessly scale your weather API.
 
@@ -115,4 +176,4 @@ As of now, the Open-Meteo API does not directly support partial reads from S3, b
 
 # License
 
-CC-BY-2.4
+CC-BY-4.0
