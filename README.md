@@ -30,6 +30,12 @@ All available data can be explored using the [S3 explorer](https://openmeteo.s3.
 
 ### Weather Forecast Models
 
+Weather models can be broadly categories by their coverage:
+- Global models run at lower resolution (11-50 km) but offer 7 to 16 days of forecast
+- Local models use higher resolution (1-7 km) but offer only 2-5 days of weather forecast
+
+Local models are nested into global models and rely on boundary conditions that drive large scale weather patterns. The Open-Meteo API seamlessly combines local and global weather models. Depending on your use-case, you may want to use different weather models. E.g. If you only need 2 days of forecast for North America, use `ncep_hrrr_conus`. Further more, you can select only `temperature_2m` to more fine grained of how much data is being transferred.
+
 
 | Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
 |-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
@@ -84,7 +90,7 @@ TBA
 
 ## Data Organization
 
-Data is structured by weather models, weather variable and time. This allows to retrieve only a small subset of required data.
+Data is structured by weather models, variable and time. This allows to retrieve only a small subset of required data.
 
 Bucket contents: 
 - `data/<model>/<weather-variable>/<time>.om`
@@ -127,7 +133,7 @@ If you require an extensive amount of weather data through an API daily and wish
 ## `om` File Format
 Data is stored in a customized file format featuring a simple header and compressed data chunks. Files use the extension `om` and contain a 2-dimensional array for data, encompassing spatial and temporal dimensions. For global high-resolution domains like GFS at 0.125°, each file can consist of 4 to 6 million grid cells. With one value per hour over a year, the array dimensions reach `6,000,000 x 8,760`.
 
-To efficiently compress large arrays, data is chunked into blocks ranging from 6 to 20 locations and 2 weeks of data, resulting in chunk dimensions of `20 x 336`. Specific lengths of dimensions and chunks are outlined in the meta-data header.
+To efficiently compress large arrays, data is chunked into blocks ranging from 6 to 20 locations and 2 weeks of data, resulting in chunk dimensions of `20 x 336`. Specific lengths of dimensions and chunks are outlined in the meta-data header. Data published is optimised for time-series access. Accessing larger areas for single time steps is less efficient.
 
 Meta data includes:
 - Length of time and space dimensions (denoted as `dim0` and `dim1`)
