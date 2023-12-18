@@ -36,6 +36,8 @@ Weather models can be broadly categories by their coverage:
 
 Local models are nested into global models and rely on boundary conditions that drive large scale weather patterns. The Open-Meteo API seamlessly combines local and global weather models. Depending on your use-case, you may want to use different weather models. E.g. If you only need 2 days of forecast for North America, use `ncep_hrrr_conus`. Further more, you can select only `temperature_2m` to more fine grained of how much data is being transferred.
 
+Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo.com/en/docs) and explore the [S3 explorer](https://openmeteo.s3.amazonaws.com/index.html#data/) to select the right weather models.
+
 
 | Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
 |-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
@@ -105,14 +107,16 @@ URL components:
 ## Updates to Real-time Weather Forecasts
 Real-time weather models refresh every 1, 3, 6, or 12 hours. Upon completion of a new weather model run, Open-Meteo retrieves the original GRIB files from national server services, updates the database, and publishes the revised database on AWS S3.
 
-Data is structured into chunks covering 7 to 14 days per file, resulting in existing files being overwritten with the most recent data. 
+Data is structured into chunks covering 7 to 14 days per file, resulting in existing files being overwritten with the most recent data. The provided Docker container offer a `sync` command to check for modifications and get the latest updates.
 
 Typically, historical weather data doesn't undergo updates. However, in the case of ERA5, daily updates are applied with a 5-7 day delay. Older historical data spanning the past 80 years remains unaltered, of course.
 
 
 ## Download and Interact With Data
 
-Open-Meteo provides a free API for quick data retrieval without the need to download from the AWS bucket. However, there are two primary scenarios where downloading data locally is advantageous:
+Open-Meteo provides a [free API](https://open-meteo.com) for quick data retrieval without the need to download from the AWS bucket.
+
+However, there are two primary scenarios where downloading data locally is advantageous:
 
 1. **Research with Past Data:**
 Conducting intensive analyses on millions of events with varying locations and time steps is facilitated by having data available locally or on a dedicated high-performance VM instance. With Open-Meteo on AWS Open Data, you can download temperature data for the past 2 years at the full 9 km ECMWF IFS resolution within minutes. Basic steps include:
@@ -120,14 +124,16 @@ Conducting intensive analyses on millions of events with varying locations and t
 - Download archived ECMWF data for temperature from AWS `docker run open-meteo sync ecmwf_ifs temperature_2m --past-days 730` (roughly 8 GB)
 - Launch your local API endpoint `docker run -p 8080:8080 open-meteo serve`
 - Get data for individual coordinates `curl "http://<instance_ip>:8080/v1/forecast?latitude=47.1&longitude=8.4&hourly=temperature_2m&start_date=20220101&end_date=20231031"`
-- Note: Docker commands are exemplary. Follow the [Tutorial for downloading historical weather data](./tutorial_download_era5/) to get it working quickly.
+
+Note: Docker commands are exemplary. Follow the [Tutorial for downloading historical weather data](./tutorial_download_era5/) to get it working quickly.
 
 2. **Running Your Own Weather API:**
 If you require an extensive amount of weather data through an API daily and wish to run your own weather API, you can obtain up-to-date weather data from Open-Meteo on AWS Open Data. The Open-Meteo Docker container can listen for newly published data and keep your local database current. Similar to using past weather data:
 - Install the Open-Meteo Docker image
 - Start the data synchronization for a given weather model `docker run open-meteo sync ncep_gfs013 temperature_2m,relative_humidity_2m,wind_u_component_10m,wind_v_component_10m --past_days 3`
 - Launch the API instance and obtain the latest forecast from your new API endpoint
-- To help you in setting up your own weather API you can follow [this tutorial](./tutorial_realtime_weather_api/) to setup your own weather API on AWS with Elastic File System (EFS) to seamlessly scale your weather API.
+
+To help you in setting up your own weather API you can follow [this tutorial](./tutorial_realtime_weather_api/) to setup your own weather API on AWS with Elastic File System (EFS) to seamlessly scale your weather API.
 
 
 ## `om` File Format
