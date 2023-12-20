@@ -2,31 +2,18 @@
 
 **AWS Bucket Name and Region: [s3://openmeteo](https://openmeteo.s3.amazonaws.com/index.html#data/); us-west-2**
 
-Open-Meteo integrates weather models from well-known weather services, delivering a rapid weather API. Real-time weather forecasts are unified within a time-series database that covers both historical and future weather data. Open-Meteo is designed to analyse long time-series of weather data for individual locations.
+Open-Meteo integrates weather models from well-known weather services, delivering a rapid weather API. Real-time weather forecasts are unified within a time-series database that covers both historical and future weather data. Open-Meteo is designed to analyse long time-series of weather data any place on earth.
 
-The database, made available through the [AWS Open Data Sponsorship program](#).
+The database, made available through the [AWS Open Data Sponsorship program](https://aws.amazon.com/opendata/open-data-sponsorship-program/).
 
 Weather datasets are sourced from the following national weather services:
-- NOAA NCEP
-- DWD
-- ECMWF
-- Environment Canada
-- MeteoFrance
-- JMA
-- Met Norway
-- Copernicus ERA5
-- Copernicus Atmosphere Monitoring Service
-- CMIPS Climate data
+- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, Met Norway
+- Historical data: Copernicus
+- Climate data: CMIPS 
 
 ## Weather Models
 
 All available data can be explored using the [S3 explorer](https://openmeteo.s3.amazonaws.com/index.html#data/).
-
-### Digital Elevation Models
-
-| Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
-|-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
-| copernicus_dem90                    | Global                           | 90 m    | -       | -        | -  | -                  | -        | 2023-12-15      |
 
 ### Weather Forecast Models
 
@@ -63,6 +50,8 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 
 ### Marine Wave Models
 
+The following ocean wave models are integrated into the [Marine Wave API](https://open-meteo.com/en/docs/marine-weather-api). 
+
 | Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
 |-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
 | dwd_gwam                    | Global                           | 0.25° (~25 km)   | Hourly       | 7.5 days        | Every 12 hours | 11                  | -                    | 2023-12-15      |
@@ -70,6 +59,8 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 | copernicus_era5_ocean       | Global                           | 0.5° (~50 km)    | Hourly       | 5 days delay    | Every 24 hours | 5                   | -                    | 2023-12-15      |
 
 ### Air Quality Models
+
+The following models are used in the [Air Quality API](https://open-meteo.com/en/docs/air-quality-api)
 
 | Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
 |-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
@@ -88,11 +79,20 @@ TBA
 
 TBA
 
+### Digital Elevation Models
+
+Based on the [GLO-90 digital elevation model (DEM)](https://spacedata.copernicus.eu/collections/copernicus-digital-elevation-model) from Copernicus, the weather API uses terrain information to optimise and downscale weather data. Although the Open-Meteo weather API works without elevation information, forecasts in mountainous terrain is less accurate. 
+
+| Model                       | Region                           | Resolution       | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
+|-----------------------------|----------------------------------|------------------|--------------|-----------------|----------------|---------------------|----------------------|-----------------|
+| copernicus_dem90                    | Global                           | 90 m    | -       | -        | -  | -                  | -        | 2023-12-15      |
+
+
 
 
 ## Data Organization
 
-Data is structured by weather models, variable and time. This allows to retrieve only a small subset of required data.
+Data is structured by weather models, variable and time. This allows to retrieve only a small subset of required data. In many cases only a limited number of weather variables like temperature is required significantly reducing the required data size.
 
 Bucket contents: 
 - `data/<model>/<weather-variable>/<time>.om`
@@ -102,12 +102,13 @@ URL components:
 - `model`: All data is grouped by weather model. E.g. `ncep_gfs013` or `dwd_icon_eu`
 - `weather-variable`. Each model contains multiple weather variables. E.g. `temperature_2m` or `relative_humidity_2m`. Some weather variables like `wind_speed_10m` are calculated by the API, but `wind_u_component_10m` and `wind_v_component_10m` are stored.
 - `time`: For each variable, data is split by time. This can be an entire year for historical data, or chunks of 1-2 weeks of data. An entire year is specified like `year_2010.om` while chunks of varying size use arbitrary indices like `chunk_927382.om`
+- `.om` file extension: All data is stored in compressed multi-dimensional arrays. For an optimal compression, a custom file format is used. See [below](#file-format).
 
 
 ## Updates to Real-time Weather Forecasts
 Real-time weather models refresh every 1, 3, 6, or 12 hours. Upon completion of a new weather model run, Open-Meteo retrieves the original GRIB files from national server services, updates the database, and publishes the revised database on AWS S3.
 
-Data is structured into chunks covering 7 to 14 days per file, resulting in existing files being overwritten with the most recent data. The provided Docker container offer a `sync` command to check for modifications and get the latest updates.
+Data is structured into chunks covering 3 to 14 days per file, resulting in existing files being overwritten with the most recent data. The length of each time-chunk is manually picked for each model for a good balance between file size, compression ratio and read performance. 
 
 Typically, historical weather data doesn't undergo updates. However, in the case of ERA5, daily updates are applied with a 5-7 day delay. Older historical data spanning the past 80 years remains unaltered, of course.
 
@@ -123,20 +124,20 @@ Conducting intensive analyses on millions of events with varying locations and t
 - Installing the Open-Meteo Docker image `docker pull ghcr.io/open-meteo/open-meteo`
 - Download archived ECMWF data for temperature from AWS `docker run open-meteo sync ecmwf_ifs temperature_2m --past-days 730` (roughly 8 GB)
 - Launch your local API endpoint `docker run -p 8080:8080 open-meteo serve`
-- Get data for individual coordinates `curl "http://<instance_ip>:8080/v1/forecast?latitude=47.1&longitude=8.4&hourly=temperature_2m&start_date=20220101&end_date=20231031"`
+- Get data for individual coordinates `curl "http://<instance_ip>:8080/v1/archive?latitude=47.1&longitude=8.4&hourly=temperature_2m&start_date=20220101&end_date=20231031"`
 
 Note: Docker commands are exemplary. Follow the [Tutorial for downloading historical weather data](./tutorial_download_era5/) to get it working quickly.
 
 2. **Running Your Own Weather API:**
-If you require an extensive amount of weather data through an API daily and wish to run your own weather API, you can obtain up-to-date weather data from Open-Meteo on AWS Open Data. The Open-Meteo Docker container can listen for newly published data and keep your local database current. Similar to using past weather data:
+If you require an extensive amount of weather data through an API daily and wish to run your own weather API, you can obtain current weather data from Open-Meteo on AWS Open Data. The Open-Meteo Docker container can listen for newly published data and keep your local database up-to-date. Similar to using past weather data:
 - Install the Open-Meteo Docker image
-- Start the data synchronization for a given weather model `docker run open-meteo sync ncep_gfs013 temperature_2m,relative_humidity_2m,wind_u_component_10m,wind_v_component_10m --past_days 3`
-- Launch the API instance and obtain the latest forecast from your new API endpoint
+- Start the data synchronization for a given weather model `docker run open-meteo sync ncep_gfs013 temperature_2m,relative_humidity_2m,wind_u_component_10m,wind_v_component_10m --past_days 3 --repeat-interval 5`
+- Launch the API instance and get the latest forecast from your new API endpoint
 
 To help you in setting up your own weather API you can follow [this tutorial](./tutorial_realtime_weather_api/) to setup your own weather API on AWS with Elastic File System (EFS) to seamlessly scale your weather API.
 
 
-## `om` File Format
+## File Format
 Data is stored in a customized file format featuring a simple header and compressed data chunks. Files use the extension `om` and contain a 2-dimensional array for data, encompassing spatial and temporal dimensions. For global high-resolution domains like GFS at 0.125°, each file can consist of 4 to 6 million grid cells. With one value per hour over a year, the array dimensions reach `6,000,000 x 8,760`.
 
 To efficiently compress large arrays, data is chunked into blocks ranging from 6 to 20 locations and 2 weeks of data, resulting in chunk dimensions of `20 x 336`. Specific lengths of dimensions and chunks are outlined in the meta-data header. Data published is optimised for time-series access. Accessing larger areas for single time steps is less efficient.
