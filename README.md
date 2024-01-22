@@ -2,12 +2,12 @@
 
 **AWS Bucket Name and Region: [s3://openmeteo](https://openmeteo.s3.amazonaws.com/index.html#data/); us-west-2**
 
-Open-Meteo integrates weather models from well-known weather services, delivering a rapid weather API. Real-time weather forecasts are unified within a time-series database that covers both historical and future weather data. Open-Meteo is designed to analyse long time-series of weather data any place on earth.
+Open-Meteo integrates weather models from well-known national weather services, delivering a rapid weather API. Real-time weather forecasts are unified within a time-series database that covers both historical and future weather data. Open-Meteo is designed to analyse long time-series of weather data any place on earth.
 
 The database, made available through the [AWS Open Data Sponsorship program](https://aws.amazon.com/opendata/open-data-sponsorship-program/).
 
 Weather datasets are sourced from the following national weather services:
-- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, Met Norway
+- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, BOM, CMA, Met Norway
 - Historical data: Copernicus
 - Climate data: CMIPS 
 
@@ -21,7 +21,7 @@ Weather models can be broadly categories by their coverage:
 - Global models run at lower resolution (11-50 km) but offer 7 to 16 days of forecast
 - Local models use higher resolution (1-7 km) but offer only 2-5 days of weather forecast
 
-Local models are nested into global models and rely on boundary conditions that drive large scale weather patterns. The Open-Meteo API seamlessly combines local and global weather models. Depending on your use-case, you may want to use different weather models. E.g. If you only need 2 days of forecast for North America, use `ncep_hrrr_conus`. Further more, you can select only `temperature_2m` to more fine grained of how much data is being transferred.
+Local models are nested into global models and rely on boundary conditions that drive large scale weather patterns. The Open-Meteo API seamlessly combines local and global weather models. Depending on your use-case, you may want to use different weather models. E.g. If you only need 2 days of forecast for North America, use `ncep_hrrr_conus`, but for more than 2 days, you have to add `ncep_gfs013`. Further more, you can select only `temperature_2m` to more fine grained of how much data is being transferred.
 
 Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo.com/en/docs) and explore the [S3 explorer](https://openmeteo.s3.amazonaws.com/index.html#data/) to select the right weather models.
 
@@ -47,8 +47,8 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 | jma_gsm                      | Global                           | 0.5° (~55 km)          | 6-Hourly     | 11 days         | Every 6 hours  | 8                   | 6 (11 levels)        | 2023-12-15      |
 | jma_msm                      | Japan, Korea                     | 0.05° (~5 km)          | Hourly       | 4 days          | Every 3 hours  | 11                  | -                    | 2023-12-15      |
 | metno_nordic_pp              | Norway, Denmark, Sweden, Finland | 1 km                   | Hourly       | 2.5 days        | Every hour     | 9                   | -                    | 2023-12-15      |
-| cma_grapes_global            | Global                           | 0.125° (~13 km)        | 3-Hourly     | 10 days         | Every 6 hours  | 9                   | -                    | 2024-01-01      |
-| bom_access_global            | Global                           | 0.175°/0.117° (~15 km) | Hourly       | 10 days         | Every 6 hours  | 9                   | -                    | 2024-01-01      |
+| cma_grapes_global            | Global                           | 0.125° (~13 km)        | 3-Hourly     | 10 days         | Every 6 hours  | 48                   | 8                    | 2024-01-01      |
+| bom_access_global            | Global                           | 0.175°/0.117° (~15 km) | Hourly       | 10 days         | Every 6 hours  | 33                   | -                    | 2024-01-01      |
  
 ### Marine Wave Models
 
@@ -64,14 +64,19 @@ The following ocean wave models are integrated into the [Marine Wave API](https:
 
 The following models are used in the [Air Quality API](https://open-meteo.com/en/docs/air-quality-api)
 
-| Model       | Region | Resolution   | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
-| ----------- | ------ | ------------ | ------------ | --------------- | -------------- | ------------------- | -------------------- | --------------- |
-| cams_global | Global | 0.4 (~44 km) | Hourly       | 4.5 days        | Every 12 hours | 10                  | -                    | 2023-12-15      |
-| cams_europe | Europe | 0.1 (~11 km) | Hourly       | 4 days          | Every 12 hours | 14                  | -                    | 2023-12-15      |
+| Model       | Region | Resolution    | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
+| ----------- | ------ | ------------- | ------------ | --------------- | -------------- | ------------------- | -------------------- | --------------- |
+| cams_global | Global | 0.4° (~44 km) | Hourly       | 4.5 days        | Every 12 hours | 10                  | -                    | 2023-12-15      |
+| cams_europe | Europe | 0.1° (~11 km) | Hourly       | 4 days          | Every 12 hours | 14                  | -                    | 2023-12-15      |
 
 ### Historical Weather Data
 
-TBA
+The following models are used in the [Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api)
+
+| Model                | Region | Resolution     | Timeinterval | Delay to realtime | Updates        | # Surface Variables | # Pressure Variables | Available since |
+| -------------------- | ------ | -------------- | ------------ | ----------------- | -------------- | ------------------- | -------------------- | --------------- |
+| copernicus_era5      | Global | 0.25° (~25 km) | Hourly       | 5 days            | Every 24 hours | 23                  | -                    | 1940-01-01      |
+| copernicus_era5_land | Global | 0.1° (~11 km)  | Hourly       | 5 days            | Every 24 hours | 11                  | -                    | 1950-01-01      |
 
 ### Ensemble Weather Models
 
@@ -121,16 +126,16 @@ Open-Meteo provides a [free API](https://open-meteo.com) for quick data retrieva
 
 However, there are two primary scenarios where downloading data locally is advantageous:
 
-1. **Research with Past Data:**
-Conducting intensive analyses on millions of events with varying locations and time steps is facilitated by having data available locally or on a dedicated high-performance VM instance. With Open-Meteo on AWS Open Data, you can download temperature data for the past 2 years at the full 9 km ECMWF IFS resolution within minutes. Basic steps include:
+1. **Research with Historical Weather Data:**
+Conducting intensive analyses on millions of events with varying locations and time steps is facilitated by having data available locally or on a dedicated high-performance VM instance. With Open-Meteo on AWS Open Data, you can download temperature data for the past 80 years using the Copernicus ERA5-Land dataset. Basic steps include:
 - Installing the Open-Meteo Docker image `docker pull ghcr.io/open-meteo/open-meteo`
-- Download archived ECMWF data for temperature from AWS `docker run open-meteo sync ecmwf_ifs temperature_2m --past-days 730` (roughly 8 GB)
+- Download archived ERA5 data for temperature from AWS `docker run open-meteo sync copernicus_era5_land temperature_2m --past-days 730` (roughly 8 GB)
 - Launch your local API endpoint `docker run -p 8080:8080 open-meteo serve`
-- Get data for individual coordinates `curl "http://<instance_ip>:8080/v1/archive?latitude=47.1&longitude=8.4&hourly=temperature_2m&start_date=20220101&end_date=20231031"`
+- Get data for individual coordinates `curl "http://127.0.0.1:8080/v1/archive?latitude=47.1&longitude=8.4&hourly=temperature_2m&start_date=20220101&end_date=20231031"`
 
 Note: Docker commands are exemplary. Follow the [Tutorial for downloading historical weather data](./tutorial_download_era5/) to get it working quickly.
 
-2. **Running Your Own Weather API:**
+1. **Running Your Own Weather API:**
 If you require an extensive amount of weather data through an API daily and wish to run your own weather API, you can obtain current weather data from Open-Meteo on AWS Open Data. The Open-Meteo Docker container can listen for newly published data and keep your local database up-to-date. Similar to using past weather data:
 - Install the Open-Meteo Docker image
 - Start the data synchronization for a given weather model `docker run open-meteo sync ncep_gfs013 temperature_2m,relative_humidity_2m,wind_u_component_10m,wind_v_component_10m --past_days 3 --repeat-interval 5`
