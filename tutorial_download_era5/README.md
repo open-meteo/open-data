@@ -1,6 +1,6 @@
 # Historical Weather Data from ERA5
 
-Conducting intensive analyses on millions of events with varying locations and time steps is facilitated by having data available locally or on a dedicated high-performance VM instance. With Open-Meteo on AWS Open Data, you can download temperature data for the past 80 years using the Copernicus ERA5-Land dataset.
+Conducting intensive analyses on millions of events with varying locations and time steps is facilitated by having data available locally or on a dedicated high-performance VM instance. In this tutorial, you can download temperature data for the past 80 years using the Copernicus ERA5-Land dataset with Open-Meteo on AWS Open Data.
 
 The Open-Meteo API can be installed locally using Docker or prebuilt Ubuntu packages. This tutorial uses Docker. More information can be found in the [Getting Started Guide](https://github.com/open-meteo/open-meteo/blob/main/docs/getting-started.md).
 
@@ -9,21 +9,24 @@ To download historical weather data and run an API instance locally, you will ha
 2. Download archived ERA5 data for temperature from AWS.
 3. Launch your local API endpoint
 
-Before you start, please familiarize yourself with the [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api/). In this tutorial you will basically replicate the same API endpoint.
+Before you start, please familiarize yourself with the [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api). In this tutorial you will basically replicate the same API endpoint.
 
 ## 1. Install Open-Meteo Docker image
 
-The latest Open-Meteo Docker image can be installed with: 
+The latest Open-Meteo Docker image can be downloaded from GitHub. If you want to run Open-Meteo on an Apple M1, please [build the Docker image from source](https://github.com/open-meteo/open-meteo/blob/main/docs/development.md).
 
 ```bash
-# Download image
+# Download prebuilt image
 docker pull ghcr.io/open-meteo/open-meteo
+```
 
+In order to store weather data, a docker volume `open-meteo-data` must be created. All downloaded weather data will be stored in this volume.
+
+```bash
 # Create a Docker volume to store weather data
 docker volume create --name open-meteo-data
 ```
 
-The volume `open-meteo-data` stores weather data 
 
 ## 2. Download ERA5 Data
 
@@ -56,25 +59,23 @@ Data is now downloaded into the volume `open-meteo-data`, but it is not directly
 ```bash
 # Start the API service on http://127.0.0.1:8080
 docker run -d --rm -v open-meteo-data:/app/data -p 8080:8080 ghcr.io/open-meteo/open-meteo
+
+# Get your forecast
+curl "http://127.0.0.1:8080/v1/archive?latitude=52.52&longitude=13.41&start_date=2024-01-06&end_date=2024-01-20&hourly=temperature_2m&models=era5_land"
 ```
 
-Once the API is running you can fetch data via HTTP. E.g. http://127.0.0.1:8080/v1/archive?latitude=52.52&longitude=13.41&start_date=2024-01-06&end_date=2024-01-20&hourly=temperature_2m&models=era5_land. As the endpoint is the same as the Open-Meteo Historical Weather API, you can use the API documentation to configure your API URL or use the provided SDKs to analyze data.
+Once the API is running you can fetch data via HTTP. As the endpoint is the same as the Open-Meteo Historical Weather API, you can use the API documentation to configure your API URL or use the provided SDKs to analyze data.
 
-For Python, you could install `pip install openmeteo-requests requests-cache retry-requests numpy pandas`
+For Python, you could install `pip install openmeteo-requests numpy pandas`
 
 And run:
 
 ```python
 import openmeteo_requests
-
-import requests_cache
 import pandas as pd
-from retry_requests import retry
 
-# Setup the Open-Meteo API client with cache and retry on error
-cache_session = requests_cache.CachedSession('.cache', expire_after = -1)
-retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
-openmeteo = openmeteo_requests.Client(session = retry_session)
+# Setup the Open-Meteo API client
+openmeteo = openmeteo_requests.Client()
 
 # Make sure all required weather variables are listed here
 # The order of variables in hourly or daily is important to assign them correctly below

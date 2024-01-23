@@ -71,7 +71,7 @@ The following models are used in the [Air Quality API](https://open-meteo.com/en
 
 ### Historical Weather Data
 
-The following models are used in the [Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api)
+The following models are used in the [Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api). Note: The historical weather API integrates high resolution data from ECMWF IFS which is not part of the open-data distribution.
 
 | Model                | Region | Resolution     | Timeinterval | Delay to realtime | Updates        | # Surface Variables | # Pressure Variables | Available since |
 | -------------------- | ------ | -------------- | ------------ | ----------------- | -------------- | ------------------- | -------------------- | --------------- |
@@ -141,7 +141,7 @@ If you require an extensive amount of weather data through an API daily and wish
 - Start the data synchronization for a given weather model `docker run open-meteo sync ncep_gfs013 temperature_2m,relative_humidity_2m,wind_u_component_10m,wind_v_component_10m --past_days 3 --repeat-interval 5`
 - Launch the API instance and get the latest forecast from your new API endpoint
 
-To help you in setting up your own weather API you can follow [this tutorial](./tutorial_realtime_weather_api/) to setup your own weather API on AWS with Elastic File System (EFS) to seamlessly scale your weather API.
+To help you in setting up your own weather API you can follow [this tutorial](./tutorial_weather_api/) to setup your own weather API.
 
 
 ## File Format
