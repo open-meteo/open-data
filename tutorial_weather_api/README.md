@@ -70,7 +70,7 @@ curl "http://127.0.0.1:8080/v1/forecast?latitude=47.1&longitude=8.4&models=gfs_g
 
 Once the API is running you can fetch data via HTTP. As the endpoint is the same as the Open-Meteo Historical Weather API, you can use the API documentation to configure your API URL or use the provided SDKs to analyze data.
 
-This repository also contains a [`docker-compose.yml`](/docker-compose.yml) to automate the steps above. Make sure to edit [`.env`](/.env) and select the right weather models and variables.
+This repository also contains a [`docker-compose.yml`](/docker-compose.yml) to automate the steps above. Make sure to edit [`.env`](/.env) and select the right weather models and variables. For optimal performance, use AWS region `us-west-2` and deploy Open-Meteo on ECS.
 
 ```bash
 git clone https://github.com/open-meteo/open-data open-meteo

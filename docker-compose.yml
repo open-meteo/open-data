@@ -1,20 +1,29 @@
 version: '3.8'
+
+x-shared_environment: &shared_environment
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
 services:
   open-meteo-api:
     image: ghcr.io/open-meteo/open-meteo
     container_name: open-meteo-api
     ports:
-      - "8080:8080"
+      - "80:8080"
     command: serve
     volumes:
       - data:/app/data
     restart: always
+    environment:
+      <<: *shared_environment
   open-meteo-sync:
     image: ghcr.io/open-meteo/open-meteo
     container_name: open-meteo-sync
-    command: sync ${OPEN_METEO_MODELS} ${OPEN_METEO_PARAMS} --past-days ${OPEN_METEO_MAX_AGE_DAYS} --repeat-interval ${OPEN_METEO_REPEAT_INTERVAL} --concurrent ${OPEN_METEO_CONCURRENT}
+    command: sync ${OPEN_METEO_MODELS} ${OPEN_METEO_VARIABLES} --past-days ${OPEN_METEO_MAX_AGE_DAYS} --repeat-interval ${OPEN_METEO_REPEAT_INTERVAL} --concurrent ${OPEN_METEO_CONCURRENT}
     volumes:
       - data:/app/data
     restart: always
+    environment:
+      <<: *shared_environment
+
 volumes:
   data:
