@@ -13,7 +13,7 @@ Before you start, please familiarize yourself with the [Open-Meteo Historical We
 
 ## 1. Install Open-Meteo Docker image
 
-The latest Open-Meteo Docker image can be downloaded from GitHub. If you want to run Open-Meteo on an Apple M1, please [build the Docker image from source](https://github.com/open-meteo/open-meteo/blob/main/docs/development.md).
+The latest Open-Meteo Docker image can be downloaded with:
 
 ```bash
 # Download prebuilt image
