@@ -47,9 +47,12 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 | jma_gsm                      | Global                           | 0.5° (~55 km)          | 6-Hourly     | 11 days         | Every 6 hours  | 8                   | 6 (11 levels)        | 2023-12-15      |
 | jma_msm                      | Japan, Korea                     | 0.05° (~5 km)          | Hourly       | 4 days          | Every 3 hours  | 11                  | -                    | 2023-12-15      |
 | metno_nordic_pp              | Norway, Denmark, Sweden, Finland | 1 km                   | Hourly       | 2.5 days        | Every hour     | 9                   | -                    | 2023-12-15      |
-| cma_grapes_global            | Global                           | 0.125° (~13 km)        | 3-Hourly     | 10 days         | Every 6 hours  | 48                   | 8                    | 2024-01-01      |
-| bom_access_global            | Global                           | 0.175°/0.117° (~15 km) | Hourly       | 10 days         | Every 6 hours  | 33                   | -                    | 2024-01-01      |
- 
+| cma_grapes_global            | Global                           | 0.125° (~13 km)        | 3-Hourly     | 10 days         | Every 6 hours  | 48                  | 8                    | 2024-01-01      |
+| bom_access_global            | Global                           | 0.175°/0.117° (~15 km) | Hourly       | 10 days         | Every 6 hours  | 33                  | -                    | 2024-01-01      |
+| arpae_cosmo_5m               | Europe                           | 5 km                   | Hourly       | 3 days          | Every 12 hours | 9                   | -                    | 2024-02-01      |
+| arpae_cosmo_2i               | Italy                            | 2.2 km                 | Hourly       | 2 days          | Every 12 hours | 9                   | -                    | 2024-02-01      |
+| arpae_cosmo_2i_ruc           | Italy                            | 2.2 km                 | Hourly       | 18 hours        | Every 3 hours  | 9                   | -                    | 2024-02-01      |
+
 ### Marine Wave Models
 
 The following ocean wave models are integrated into the [Marine Wave API](https://open-meteo.com/en/docs/marine-weather-api). 
