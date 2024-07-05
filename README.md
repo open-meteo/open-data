@@ -67,6 +67,7 @@ The following ocean wave models are integrated into the [Marine Wave API](https:
 | meteofrance_currents  | Global | 0.08° (~8 km)  | Hourly       | 10 days         | Every 24 hours | 1                   | -                    | 2022-01-01      |
 | meteofrance_wave      | Global | 0.08° (~8 km)  | 3-Hourly     | 10 days         | Every 12 hours | 9                   | -                    | 2021-10-01      |
 | ncep_gfswave025       | Global | 0.25° (~25 km) | Hourly       | 16 days         | Every 6 hours  | 9                   | -                    | 2024-06-20      |
+| dwd_gwam              | Global | 0.25° (~25 km) | Hourly       | 7.5 days        | Every 12 hours | 11                  | -                    | 2023-12-15      |
 | dwd_ewam              | Europe | 0.05° (~5 km)  | Hourly       | 4 days          | Every 12 hours | 11                  | -                    | 2023-12-15      |
 | copernicus_era5_ocean | Global | 0.5° (~50 km)  | Hourly       | 5 days delay    | Every 24 hours | 5                   | -                    | 2023-12-15      |
 
