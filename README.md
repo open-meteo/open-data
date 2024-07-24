@@ -4,12 +4,14 @@
 
 Open-Meteo integrates weather models from well-known national weather services, delivering a rapid weather API. Real-time weather forecasts are unified within a time-series database that covers both historical and future weather data. Open-Meteo is designed to analyse long time-series of weather data any place on earth.
 
-The database, made available through the [AWS Open Data Sponsorship program](https://aws.amazon.com/opendata/open-data-sponsorship-program/).
+This database is made available through the [AWS Open Data Sponsorship program](https://aws.amazon.com/opendata/open-data-sponsorship-program/).
 
 Weather datasets are sourced from the following national weather services:
-- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, BOM, CMA, Met Norway
-- Historical data: Copernicus
+- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, BOM, CMA, Met Norway, DMI, KNMI
+- Historical data: Copernicus, ECMWF
 - Climate data: CMIPS 
+
+This open-data distribution is managed by Open-Meteo and is not directly affiliated with national weather services such as ECMWF or NOAA NCEP. Open-Meteo does not guarantee the accuracy, completeness, or uninterrupted provision of the data products, and they are provided without any warranty. For support inquiries, please contact Open-Meteo by creating [`issues`](https://github.com/open-meteo/open-data/issues) or [`discussions`](https://github.com/open-meteo/open-data/discussions) in this repository.
 
 ## Weather Models
 
@@ -82,12 +84,13 @@ The following models are used in the [Air Quality API](https://open-meteo.com/en
 
 ### Historical Weather Data
 
-The following models are used in the [Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api). Note: The historical weather API integrates high resolution data from ECMWF IFS which is not part of the open-data distribution.
+The following models are used in the [Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api).
 
 | Model                | Region | Resolution     | Timeinterval | Delay to realtime | Updates        | # Surface Variables | # Pressure Variables | Available since |
 | -------------------- | ------ | -------------- | ------------ | ----------------- | -------------- | ------------------- | -------------------- | --------------- |
 | copernicus_era5      | Global | 0.25° (~25 km) | Hourly       | 5 days            | Every 24 hours | 23                  | -                    | 1940-01-01      |
 | copernicus_era5_land | Global | 0.1° (~11 km)  | Hourly       | 5 days            | Every 24 hours | 11                  | -                    | 1950-01-01      |
+| ecmwf_ifs            | Global | 9 km           | Hourly       | 2 days            | Every 24 hours | 24                  | -                    | 2017-01-01      |
 
 ### Ensemble Weather Models
 

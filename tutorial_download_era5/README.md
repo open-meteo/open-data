@@ -46,7 +46,7 @@ Parameter explanation:
 - `-it --rm` instructs Docker to only run one command, exit and clean-up any running container
 - `-v open-meteo-data:/app/data` assigns the Docker volume to store weather data
 - `ghcr.io/open-meteo/open-meteo sync` run the `sync` command of the Open-Meteo Image
-- `copernicus_era5_land` Select the weather dataset ERA5-Land. All datasets are listed in the [S3 bucket](https://openmeteo.s3.amazonaws.com/index.html#data/).
+- `copernicus_era5_land` Select the weather dataset ERA5-Land. Use `ecmwf_ifs` for an archive of the full resolution IFS weather model. All datasets are listed in the [S3 bucket](https://openmeteo.s3.amazonaws.com/index.html#data/).
 - `temperature_2m` Download temperature on 2 meters above ground. All variables for each dataset are also listed in the S3 bucket.
 - `--past-days 730` will include all files that contain data from the past 2 years. If set to `3650`, data of the last 10 years would be downloaded.
 
