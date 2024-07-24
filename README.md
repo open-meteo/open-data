@@ -1,6 +1,6 @@
 # Open-Meteo on AWS Open Data
 
-**AWS Bucket Name and Region: [s3://openmeteo](https://openmeteo.s3.amazonaws.com/index.html#data/); us-west-2**
+**AWS Bucket Name and Region: [s3://openmeteo](https://openmeteo.s3.amazonaws.com/index.html#data/); us-west-2; [AWS Registry](https://registry.opendata.aws/open-meteo/)**
 
 Open-Meteo integrates weather models from well-known national weather services, delivering a rapid weather API. Real-time weather forecasts are unified within a time-series database that covers both historical and future weather data. Open-Meteo is designed to analyse long time-series of weather data any place on earth.
 
