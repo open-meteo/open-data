@@ -44,6 +44,8 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 | meteofrance_arome_france_hd     | "                                | 0.01° (~1.5 km)        | "            | "               | "              | 12                  | -                    | 2023-12-15      |
 | ecmwf_ifs04                     | Global                           | 0.4 (~44 km)           | 3-Hourly     | 10 days         | Every 6 hours  | 14                  | 7 (9 levels)         | 2023-12-15      |
 | ecmwf_ifs025                    | Global                           | 0.25 (~25 km)          | 3-Hourly     | 10 days         | Every 6 hours  | 14                  | 7 (9 levels)         | 2024-02-03      |
+| global_deterministic_10km       | Global                           | 0.09 (~10 km)          | Hourly       | 7 days          | Every 6 hours  | 19                  | 5 (59 levels)        | 2022-03-01      |
+| uk_deterministic_2km            | UK, Ireland                      | 2 km                   | Hourly       | 2 days          | Every hour     | 24                  | 5 (59 levels)        | 2022-03-01      |
 | cmc_gem_gdps                    | Global                           | 0.15° (~15 km)         | 3-Hourly     | 10 days         | Every 12 hours | 24                  | 5 (31 levels)        | 2023-12-15      |
 | cmc_gem_rdps                    | North America, North Pole        | 10 km                  | Hourly       | 3.5 days        | Every 6 hours  | 24                  | 5 (31 levels)        | 2023-12-15      |
 | cmc_gem_hrdps                   | Canada, Northern US              | 2.5 km                 | Hourly       | 2 days          | Every 6 hours  | 24                  | 5 (28 levels)        | 2023-12-15      |
