@@ -36,6 +36,7 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 | dwd_icon_d2_15min               | "                                | "                      | 15-Minutely  | "               | "              | 8                   | -                    | 2023-12-15      |
 | ncep_gfs013                     | Global                           | 0.11° (~13 km)         | Hourly       | 16 days         | Every 6 hours  | 27                  | -                    | 2023-12-15      |
 | ncep_gfs025                     | Global                           | 0.25° (~25 km)         | Hourly       | 16 days         | Every 6 hours  | 11                  | 7 (38 levels)        | 2023-12-15      |
+| ncep_nbm_conus                  | U.S. Conus                       | 2.5 km                 | Hourly       | 11 days         | Every hour     | 20                  | -                    | 2024-10-03      |
 | ncep_hrrr_conus                 | U.S. Conus                       | 3 km                   | Hourly       | 2 days          | Every hour     | 23                  | 7 (39 levels)        | 2023-12-15      |
 | ncep_hrrr_conus_15min           | "                                | "                      | 15-Minutely  | "               | "              | 12                  | -                    | 2023-12-15      |
 | meteofrance_arpege_world025     | Global                           | 0.25° (~25 km)         | Hourly       | 4 days          | Every 6 hours  | 29                  | 6 (23 levels)        | 2023-12-15      |
