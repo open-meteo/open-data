@@ -7,7 +7,7 @@ Open-Meteo integrates weather models from well-known national weather services, 
 This database is made available through the [AWS Open Data Sponsorship program](https://aws.amazon.com/opendata/open-data-sponsorship-program/).
 
 Weather datasets are sourced from the following national weather services:
-- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, BOM, CMA, Met Norway, DMI, KNMI
+- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, BOM, CMA, Met Norway, DMI, KNMI, KMA, ItaliaMeteo
 - Historical data: Copernicus, ECMWF
 - Climate data: CMIPS 
 
@@ -61,20 +61,24 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 | dmi_harmonie_arome_europe       | Central & Northern Europe        | 2 km                   | Hourly       | 60 hours        | Every 3 hours  | 39                  | -                    | 2024-07-01      |
 | knmi_harmonie_arome_europe      | Central & Northern Europe        | 5.5 km                 | Hourly       | 60 hours        | Every hour     | 22                  | 5 (5 levels)         | 2024-07-01      |
 | knmi_harmonie_arome_netherlands | Netherlands, Belgium             | 2 km                   | Hourly       | 60 hours        | Every hour     | 28                  | -                    | 2024-07-01      |
+| kma_gdps                        | Global                           | 0.13° (~12 km)         | 3-Hourly     | 12 days         | Every 6 hours  | 28                  | -                    | 2024-07-01      |
+| kma_ldps                        | South And North Korea            | 1.5 km                 | Hourly       | 2 days          | Every 6 hours  | 28                  | -                    | 2024-07-01      |
+| italia_meteo_arpae_icon_2i      | Southern Europe                  | 2 km                   | Hourly       | 60 hours        | Every 12 hours | 28                  | -                    | 2025-04-13      |
 
 ### Marine Wave Models
 
 The following ocean wave models are integrated into the [Marine Wave API](https://open-meteo.com/en/docs/marine-weather-api). 
 
-| Model                 | Region | Resolution     | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
-| --------------------- | ------ | -------------- | ------------ | --------------- | -------------- | ------------------- | -------------------- | --------------- |
-| ecmwf_wam025          | Global | 0.25° (~25 km) | 3-Hourly     | 10 days         | Every 6 hours  | 4                   | -                    | 2024-03-01      |
-| meteofrance_currents  | Global | 0.08° (~8 km)  | Hourly       | 10 days         | Every 24 hours | 1                   | -                    | 2022-01-01      |
-| meteofrance_wave      | Global | 0.08° (~8 km)  | 3-Hourly     | 10 days         | Every 12 hours | 9                   | -                    | 2021-10-01      |
-| ncep_gfswave025       | Global | 0.25° (~25 km) | Hourly       | 16 days         | Every 6 hours  | 9                   | -                    | 2024-06-20      |
-| dwd_gwam              | Global | 0.25° (~25 km) | Hourly       | 7.5 days        | Every 12 hours | 11                  | -                    | 2023-12-15      |
-| dwd_ewam              | Europe | 0.05° (~5 km)  | Hourly       | 4 days          | Every 12 hours | 11                  | -                    | 2023-12-15      |
-| copernicus_era5_ocean | Global | 0.5° (~50 km)  | Hourly       | 5 days delay    | Every 24 hours | 5                   | -                    | 2023-12-15      |
+| Model                               | Region | Resolution     | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
+| ----------------------------------- | ------ | -------------- | ------------ | --------------- | -------------- | ------------------- | -------------------- | --------------- |
+| ecmwf_wam025                        | Global | 0.25° (~25 km) | 3-Hourly     | 10 days         | Every 6 hours  | 4                   | -                    | 2024-03-01      |
+| meteofrance_currents                | Global | 0.08° (~8 km)  | Hourly       | 10 days         | Every 24 hours | 1                   | -                    | 2022-01-01      |
+| meteofrance_wave                    | Global | 0.08° (~8 km)  | 3-Hourly     | 10 days         | Every 12 hours | 9                   | -                    | 2021-10-01      |
+| meteofrance_sea_surface_temperature | Global | 0.08° (~8 km)  | 6-Hourly     | 10 days         | Every 24 hours | 1                   | -                    | 2022-01-01      |
+| ncep_gfswave025                     | Global | 0.25° (~25 km) | Hourly       | 16 days         | Every 6 hours  | 9                   | -                    | 2024-06-20      |
+| dwd_gwam                            | Global | 0.25° (~25 km) | Hourly       | 7.5 days        | Every 12 hours | 11                  | -                    | 2023-12-15      |
+| dwd_ewam                            | Europe | 0.05° (~5 km)  | Hourly       | 4 days          | Every 12 hours | 11                  | -                    | 2023-12-15      |
+| copernicus_era5_ocean               | Global | 0.5° (~50 km)  | Hourly       | 5 days delay    | Every 24 hours | 5                   | -                    | 2023-12-15      |
 
 ### Air Quality Models
 
