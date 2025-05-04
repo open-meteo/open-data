@@ -8,10 +8,11 @@ This database is made available through the [AWS Open Data Sponsorship program](
 
 Weather datasets are sourced from the following national weather services:
 - Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, BOM, CMA, Met Norway, DMI, KNMI, KMA, ItaliaMeteo
+- Marine Weather: ECMWF, MeteoFrance, Copernicus Marine, DWD, NOAA NCEP
+- Air Quality: CAMS
 - Historical data: Copernicus, ECMWF
-- Climate data: CMIPS 
 
-This open-data distribution is managed by Open-Meteo and is not directly affiliated with national weather services such as ECMWF or NOAA NCEP. Open-Meteo does not guarantee the accuracy, completeness, or uninterrupted provision of the data products, and they are provided without any warranty. For support inquiries, please contact Open-Meteo by creating [`issues`](https://github.com/open-meteo/open-data/issues) or [`discussions`](https://github.com/open-meteo/open-data/discussions) in this repository.
+This open-data distribution is managed by Open-Meteo and is not directly affiliated with national weather services. Open-Meteo does not guarantee the accuracy, completeness, or uninterrupted provision of the data products, and they are provided without any warranty. For support inquiries, please contact Open-Meteo by creating [`issues`](https://github.com/open-meteo/open-data/issues) or [`discussions`](https://github.com/open-meteo/open-data/discussions) in this repository.
 
 ## Weather Models
 
@@ -55,9 +56,6 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 | metno_nordic_pp                 | Norway, Denmark, Sweden, Finland | 1 km                   | Hourly       | 2.5 days        | Every hour     | 9                   | -                    | 2023-12-15      |
 | cma_grapes_global               | Global                           | 0.125° (~13 km)        | 3-Hourly     | 10 days         | Every 6 hours  | 48                  | 8                    | 2024-01-01      |
 | bom_access_global               | Global                           | 0.175°/0.117° (~15 km) | Hourly       | 10 days         | Every 6 hours  | 33                  | -                    | 2024-01-01      |
-| arpae_cosmo_5m                  | Europe                           | 5 km                   | Hourly       | 3 days          | Every 12 hours | 9                   | -                    | 2024-02-01      |
-| arpae_cosmo_2i                  | Italy                            | 2.2 km                 | Hourly       | 2 days          | Every 12 hours | 9                   | -                    | 2024-02-01      |
-| arpae_cosmo_2i_ruc              | Italy                            | 2.2 km                 | Hourly       | 18 hours        | Every 3 hours  | 9                   | -                    | 2024-02-01      |
 | dmi_harmonie_arome_europe       | Central & Northern Europe        | 2 km                   | Hourly       | 60 hours        | Every 3 hours  | 39                  | -                    | 2024-07-01      |
 | knmi_harmonie_arome_europe      | Central & Northern Europe        | 5.5 km                 | Hourly       | 60 hours        | Every hour     | 22                  | 5 (5 levels)         | 2024-07-01      |
 | knmi_harmonie_arome_netherlands | Netherlands, Belgium             | 2 km                   | Hourly       | 60 hours        | Every hour     | 28                  | -                    | 2024-07-01      |
@@ -99,13 +97,6 @@ The following models are used in the [Historical Weather API](https://open-meteo
 | copernicus_era5_land | Global | 0.1° (~11 km)  | Hourly       | 5 days            | Every 24 hours | 11                  | -                    | 1950-01-01      |
 | ecmwf_ifs            | Global | 9 km           | Hourly       | 2 days            | Every 24 hours | 24                  | -                    | 2017-01-01      |
 
-### Ensemble Weather Models
-
-TBA
-
-### Climate Models
-
-TBA
 
 ### Digital Elevation Models
 
@@ -115,7 +106,9 @@ Based on the [GLO-90 digital elevation model (DEM)](https://spacedata.copernicus
 | ---------------- | ------ | ---------- | ------------ | --------------- | ------- | ------------------- | -------------------- | --------------- |
 | copernicus_dem90 | Global | 90 m       | -            | -               | -       | -                   | -                    | 2023-12-15      |
 
+### Other Models
 
+Climate, flood, satellite and ensemble models are not published on AWS due to their immense size.
 
 
 ## Data Organization
@@ -124,19 +117,26 @@ Data is structured by weather models, variable and time. This allows to retrieve
 
 Bucket contents: 
 - `data/<model>/<weather-variable>/<time>.om`
+- `data_spatial/<model>/YYYY/MM/DD/HHMMZ/<variable>.om`
 - `README.md`
+
+Types:
+- `data`: Data is optimized for time-series access. Meaning you can access long time-series for a individual location quickly.
+- `data_spatial`: Data is stored per time-step and is ideal to read large areas and generate interactive maps, but only for a single time-step. Internally each file is chunked by [32,32] and enables cloud native access to a small portion of data of each file.
 
 URL components:
 - `model`: All data is grouped by weather model. E.g. `ncep_gfs013` or `dwd_icon_eu`
-- `weather-variable`. Each model contains multiple weather variables. E.g. `temperature_2m` or `relative_humidity_2m`. Some weather variables like `wind_speed_10m` are calculated by the API, but `wind_u_component_10m` and `wind_v_component_10m` are stored.
+- `variable`. Each model contains multiple weather variables. E.g. `temperature_2m` or `relative_humidity_2m`. Some weather variables like `wind_speed_10m` are calculated by the API, but `wind_u_component_10m` and `wind_v_component_10m` are stored.
 - `time`: For each variable, data is split by time. This can be an entire year for historical data, or chunks of 1-2 weeks of data. An entire year is specified like `year_2010.om` while chunks of varying size use arbitrary indices like `chunk_927382.om`
 - `.om` file extension: All data is stored in compressed multi-dimensional arrays. For an optimal compression, a custom file format is used. See [below](#file-format).
 
 
 ## Updates to Real-time Weather Forecasts
-Real-time weather models refresh every 1, 3, 6, or 12 hours. Upon completion of a new weather model run, Open-Meteo retrieves the original GRIB files from national server services, updates the database, and publishes the revised database on AWS S3.
+Real-time weather models refresh every 1, 3, 6, or 12 hours. Once the first data is published by the national weather services, Open-Meteo starts downloading and processing data. Data for spatial access `data_spatial` is generated and uploaded immediately after each time-step has been processed. Upon completion of a new weather model run, the time-series optimized database is generate and uploaded to AWS.
 
-Data is structured into chunks covering 3 to 14 days per file, resulting in existing files being overwritten with the most recent data. The length of each time-chunk is manually picked for each model for a good balance between file size, compression ratio and read performance. 
+Time-series data is structured into chunks covering 3 to 14 days per file, resulting in existing files being overwritten with the most recent data. The length of each time-chunk is manually picked for each model for a good balance between file size, compression ratio and read performance.
+
+Spatial data overwrites updated timestamps with each run. Only the most recent data remains for each time-step. It is therefore possible to also generate maps of the past.
 
 Typically, historical weather data doesn't undergo updates. However, in the case of ERA5, daily updates are applied with a 5-7 day delay. Older historical data spanning the past 80 years remains unaltered, of course.
 
@@ -166,54 +166,13 @@ To help you in setting up your own weather API you can follow [this tutorial](./
 
 
 ## File Format
-Data is stored in a customized file format featuring a simple header and compressed data chunks. Files use the extension `om` and contain a 2-dimensional array for data, encompassing spatial and temporal dimensions. For global high-resolution domains like GFS at 0.125°, each file can consist of 4 to 6 million grid cells. With one value per hour over a year, the array dimensions reach `6,000,000 x 8,760`.
+Data is stored in a custom file format called OM-Files, designed for chunked data access and efficient compression. The structure is similar to NetCDF or HDF5 but with significantly lower overhead.
 
-To efficiently compress large arrays, data is chunked into blocks ranging from 6 to 20 locations and 2 weeks of data, resulting in chunk dimensions of `20 x 336`. Specific lengths of dimensions and chunks are outlined in the meta-data header. Data published is optimised for time-series access. Accessing larger areas for single time steps is less efficient.
+OM-Files are cloud-native and can be accessed directly from S3. Thanks to small chunk sizes, users can retrieve only the data they need—without downloading the entire file. Chunks typically range from 1–4 KiB. For example, a temperature dataset like ERA5-Land might be 9 GiB, but reading data for a single location requires just 16 KiB—including all metadata, indices, and data.
 
-Meta data includes:
-- Length of time and space dimensions (denoted as `dim0` and `dim1`)
-- Chunk dimensions (denoted as `chunk0` and `chunk1`)
-- Compression type and data scale-factor
+OM-Files can also be written sequentially and streamed directly to S3. Paired with a fast chunking and compression pipeline, this allows for data generation at GB/s speeds. This high performance is essential for working with large-scale meteorological datasets. Open-Meteo alone processes over 2 TiB of weather data every day.
 
-Compressing 2-dimensional chunks achieves high compression ratios due to the homogeneity of gridded weather data in space and time. Compared to GRIB files, compression ratios are approximately 5 times higher on average. The compression scheme involves scaling weather data to reasonable accuracy (e.g., 0.05K for temperature), 2-dimensional delta coding, outlier filtering, and bit-length encoding. The reference implementation can be found in the [Open-Meteo GitHub repository](https://github.com/open-meteo/open-meteo/blob/main/Sources/SwiftPFor2D/SwiftPFor2D.swift). Libraries in other programming languages may follow based on public interest.
-
-Each individual chunk varies in size. The format includes a lookup table addressing each chunk individually, enabling random reads to specific portions of a file. Thus, the overall format comprises meta-data, a lookup table, and a data blob to store compressed chunks.
-
-Binary Format:
-- `2 byte`: magic number "OM"
-- `1 byte`: version
-- `1 byte`: compression type with filter
-- `4 byte`: float scalefactor
-- `8 byte`: dim0 dim (slow)
-- `8 byte`: dom0 dim1 (fast)
-- `8 byte`: chunk dim0
-- `8 byte`: chunk dim1
-- `Array of 64-bit Integer`: Offset lookup table
-- `Blob`: Data for each chunk, offset but the lookup table
-
-This format draws inspiration from formats such as Zarr or HDF5 but is designed to encompass only a single 2-dimensional array. Opting for a custom format was a deliberate choice to seamlessly integrate a specialized compression scheme, interact directly with data, and eliminate any abstraction present in HDF5 or other libraries. Previous file formats and compression methods fell short of achieving the necessary compression performance.
-
-The reference implementation is also designed to be thread-safe, minimize dynamic allocations, leverage high queue depth in SSDs, and deliver high throughput by harnessing the capabilities of modern CPUs with vector instructions.
-
-
-### Decoding Example
-
-A typical scenario involves retrieving one week of hourly weather data for a specific location. To accomplish this, an application must:
-- Calculate the grid-cell position, for example, `1,345,434` out of `6,000,000` grid cells. For a global 0.125° regular grid, the calculation is `longitude / 0.125 + (latitude / 0.125) * (360/0.125)`.
-- Open the `om` file and read the first 56 bytes to decode the header.
-- Utilize the array and chunk dimensions to determine the chunk number.
-- Access the offset through the lookup table.
-- Read data from the specified offset.
-- Decompress the data.
-
-All these decoding steps are seamlessly integrated into the Open-Meteo API. There's no need for you to implement them. It is highly recommended to use the provided Docker files for reading from `om` files.
-
-
-### Cloud-Native implementation
-The `om` file format enables reading small subsections of data without the need to download the entire file. Only three read operations are necessary to obtain the data, and the first two reads can be efficiently cached.
-
-As of now, the Open-Meteo API does not directly support partial reads from S3, but this functionality will be implemented in the future.
-
+The underlying OM-File library is implemented in C — [source code available here](https://github.com/open-meteo/om-file-format). OM-Files can also be read from [Python](https://github.com/open-meteo/python-omfiles), [Rust](https://github.com/open-meteo/rust-omfiles), [Swift](https://github.com/open-meteo/om-file-format/tree/main/Swift), and [TypeScript WASM](https://github.com/open-meteo/typescript-omfiles).
 
 # License
 
