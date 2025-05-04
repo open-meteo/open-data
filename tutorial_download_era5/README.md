@@ -79,7 +79,7 @@ openmeteo = openmeteo_requests.Client()
 
 # Make sure all required weather variables are listed here
 # The order of variables in hourly or daily is important to assign them correctly below
-url = "http://127.0.0.1:808/v1/archive"
+url = "http://127.0.0.1:8080/v1/archive"
 params = {
 	"latitude": 52.52,
 	"longitude": 13.41,
