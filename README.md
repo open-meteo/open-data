@@ -147,6 +147,8 @@ The update process follows these steps:
 Caveats:
 - Time steps in `data_spatial/` and `data_run/` reflect the native resolution of the underlying weather model. Some models provide high-frequency (e.g. 1-hourly) forecasts for initial hours, then shift to coarser resolutions (e.g. 3- or 6-hourly) for later periods. In contrast, the rolling timeseries distribution in `data/` always interpolates all data to the highest available temporal resolution.
 
+- Variables that represent a backward sum or backward average — such as precipitation or solar radiation — do not include the first timestep in `data_spatial/` and `data_run/`.
+
 - For `data_spatial/`, all variables are stored within a single `.om` file per time-step. Users must read the metadata in each `.om` file to locate and extract specific weather variables. The `.om` format is cloud-native, allowing partial downloads of only the required data segments. This design avoids the overhead of managing billions of small files.
 
 - Certain weather variables may be published with a delay by some models. For example, DWD ICON models release high-altitude wind forecasts up to an hour later than standard variables. To accommodate this, a secondary set of files is created in data_spatial, such as `data_spatial/dwd_icon/latest_model-level.json`, referencing delayed data files like `data_spatial/dwd_icon/<run>/<time>_model-level.json`.
