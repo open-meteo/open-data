@@ -62,6 +62,8 @@ Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo
 | kma_gdps                        | Global                           | 0.13° (~12 km)         | 3-Hourly     | 12 days         | Every 6 hours  | 28                  | -                    | 2024-07-01      |
 | kma_ldps                        | South And North Korea            | 1.5 km                 | Hourly       | 2 days          | Every 6 hours  | 28                  | -                    | 2024-07-01      |
 | italia_meteo_arpae_icon_2i      | Southern Europe                  | 2 km                   | Hourly       | 60 hours        | Every 12 hours | 28                  | -                    | 2025-04-13      |
+| meteoswiss_icon_ch1             | Central Europe                   | 1 km                   | Hourly       | 33 hours        | Every 3 hours  | 28                  | -                    | 2025-07-20      |
+| meteoswiss_icon_ch2             | Central Europe                   | 2 km                   | Hourly       | 120 hours       | Every 6 hours  | 28                  | -                    | 2025-07-20      |
 
 ### Marine Wave Models
 
