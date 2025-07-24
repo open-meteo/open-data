@@ -7,7 +7,7 @@ Open-Meteo integrates weather models from well-known national weather services, 
 This database is made available through the [AWS Open Data Sponsorship program](https://aws.amazon.com/opendata/open-data-sponsorship-program/).
 
 Weather datasets are sourced from the following national weather services:
-- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, BOM, CMA, Met Norway, DMI, KNMI, KMA, ItaliaMeteo
+- Forecast: NOAA NCEP, DWD, ECMWF, Environment Canada, MeteoFrance, JMA, BOM, CMA, Met Norway, DMI, KNMI, KMA, ItaliaMeteo, MeteoSwiss
 - Marine Weather: ECMWF, MeteoFrance, Copernicus Marine, DWD, NOAA NCEP
 - Air Quality: CAMS
 - Historical data: Copernicus, ECMWF
@@ -114,31 +114,42 @@ Climate, flood, satellite and ensemble models are not published on AWS due to th
 
 
 ## Data Organization
+Weather data is stored in formats tailored to different access patterns such as time-series APIs, weather map generation, and AI model training. Each storage layout has its own strengths and trade-offs, but together they ensure efficient and flexible data access. All datasets are stored as multi-dimensional arrays in cloud-native formats, enabling direct access to parts of each file without the need for a centralized database management system.
 
-Data is structured by weather models, variable and time. This allows to retrieve only a small subset of required data. In many cases only a limited number of weather variables like temperature is required significantly reducing the required data size.
+The same underlying weather data is offered through multiple layout strategies, each optimized for a specific use case:
 
-Bucket contents: 
-- `data/<model>/<weather-variable>/<time>.om`
-- `data_spatial/<model>/YYYY/MM/DD/HHMMZ/<variable>.om`
-- `README.md`
+- **Rolling Timeseries** (`data/<model>/<weather-variable>/<time-chunk>.om`): A continuously updated archive optimized for time-series access at specific locations. The timeseries is split into `chunks`, with the most recent ones overwritten on each model update cycle, typically every few hours. This format supports long-term retention—multiple years of data are available and preserved indefinitely. It powers the Open-Meteo weather API and is ideal for applications requiring historical context.
 
-Types:
-- `data`: Data is optimized for time-series access. Meaning you can access long time-series for a individual location quickly.
-- `data_spatial`: Data is stored per time-step and is ideal to read large areas and generate interactive maps, but only for a single time-step. Internally each file is chunked by [32,32] and enables cloud native access to a small portion of data of each file.
+- **Spatial Data** (`data_spatial/<model>/<run>/<timestamp>.om`): Ideal for visualization and map-based applications. Each file includes all weather variables for a specific timestamp and is updated in near real-time as models are processed. Data is available with minimal latency and retained for 7 days.
+
+- **Run-Based Data** (`data_run/<model>/<run>/<weather-variable>.om`): Designed for granular access to individual model runs, this layout supports full time-series retrieval of specific variables - ideal for AI training workflows that require all timesteps from a given run, without needing global coverage. Data is publicly available on AWS for 3 months, with extended archives available directly from Open-Meteo.
 
 URL components:
-- `model`: All data is grouped by weather model. E.g. `ncep_gfs013` or `dwd_icon_eu`
-- `variable`. Each model contains multiple weather variables. E.g. `temperature_2m` or `relative_humidity_2m`. Some weather variables like `wind_speed_10m` are calculated by the API, but `wind_u_component_10m` and `wind_v_component_10m` are stored.
-- `time`: For each variable, data is split by time. This can be an entire year for historical data, or chunks of 1-2 weeks of data. An entire year is specified like `year_2010.om` while chunks of varying size use arbitrary indices like `chunk_927382.om`
-- `.om` file extension: All data is stored in compressed multi-dimensional arrays. For an optimal compression, a custom file format is used. See [below](#file-format).
+- `model`: All data is grouped by weather model. E.g. `ncep_gfs013` or `dwd_icon_eu`.
+- `weather-variable`. Each model contains multiple weather variables. E.g. `temperature_2m` or `relative_humidity_2m`. Some weather variables like `wind_speed_10m` are calculated by the API, but `wind_u_component_10m` and `wind_v_component_10m` are stored.
+- `time-chunk`: For each variable, data is split by time. This can be an entire year for historical data, or chunks of 1-2 weeks of data. An entire year is specified like `year_2010.om` while chunks of varying size use arbitrary indices like `chunk_927382.om`
+- `timestamp`: For `data_spatial/` each timestamp is an ISO timestamp `YYYY-MM-DDThhmm`
+- `run`: The model run also known as forecast reference time is split into directories `YYYY/MM/DD/hhmmZ`
+- `.om` file extension: All data is stored in multi-dimensional arrays. Dimensions are either `[ny,nx,ntime]` for time-series optimised access or just `[ny,nx]` for spatial orientation. For an optimal compression, a custom file format is used. See [below](#file-format).
 
 
 ## Updates to Real-time Weather Forecasts
-Real-time weather models refresh every 1, 3, 6, or 12 hours. Once the first data is published by the national weather services, Open-Meteo starts downloading and processing data. Data for spatial access `data_spatial` is generated and uploaded immediately after each time-step has been processed. Upon completion of a new weather model run, the time-series optimized database is generate and uploaded to AWS.
+Real-time weather models refresh every 1, 3, 6, or 12 hours. Once the first data becomes available from national weather services, Open-Meteo begins downloading and processing it. Some models may take up to 2 hours to complete their run. Open-Meteo initiates parallel downloads even while the model is still running.
 
-Time-series data is structured into chunks covering 3 to 14 days per file, resulting in existing files being overwritten with the most recent data. The length of each time-chunk is manually picked for each model for a good balance between file size, compression ratio and read performance.
+The update process follows these steps:
 
-Spatial data overwrites updated timestamps with each run. Only the most recent data remains for each time-step. It is therefore possible to also generate maps of the past.
+1. **Spatial Data** (`data_spatial/`): As each time-step is processed, spatial access data is generated and uploaded immediately. This allows data to be accessed even while a weather model is still running. After each forecast hour is published, the metadata file `data_spatial/<model>/in-progress.json` is updated. This file lists all variables and time-steps processed so far. Once the entire run is complete, `data_spatial/<model>/latest.json` is updated to show the most recent completed model run.
+
+2. **Rolling Timeseries** (`data/`): Once all time-steps have been downloaded, the time-series database at `data/` is updated. Data is organized into chunks spanning 3 to 14 days per file. These files are overwritten with the newest data during each update cycle. Chunk lengths are individually tuned per model to strike a balance between file size, compression efficiency, and read performance. Upon update, metadata is written to `data/<model>/static/meta.json`.
+
+3. **Run-Based Data** (`data_run/`): In the final step, a full distribution is generated for data_run. All timestamps are transposed into a time-series-optimized format. To reduce file size, only 13 pressure levels and model levels below 200 meters are retained for each model run. Upon completion, metadata is written to `data_run/<model>/<run>/meta.json`.
+
+Caveats:
+- Time steps in `data_spatial/` and `data_run/` reflect the native resolution of the underlying weather model. Some models provide high-frequency (e.g. 1-hourly) forecasts for initial hours, then shift to coarser resolutions (e.g. 3- or 6-hourly) for later periods. In contrast, the rolling timeseries distribution in `data/` always interpolates all data to the highest available temporal resolution.
+
+- For `data_spatial/`, all variables are stored within a single `.om` file per time-step. Users must read the metadata in each `.om` file to locate and extract specific weather variables. The `.om` format is cloud-native, allowing partial downloads of only the required data segments. This design avoids the overhead of managing billions of small files.
+
+- Certain weather variables may be published with a delay by some models. For example, DWD ICON models release high-altitude wind forecasts up to an hour later than standard variables. To accommodate this, a secondary set of files is created in data_spatial, such as `data_spatial/dwd_icon/latest_model-level.json`, referencing delayed data files like `data_spatial/dwd_icon/<run>/<time>_model-level.json`.
 
 Typically, historical weather data doesn't undergo updates. However, in the case of ERA5, daily updates are applied with a 5-7 day delay. Older historical data spanning the past 80 years remains unaltered, of course.
 
@@ -158,13 +169,16 @@ Conducting intensive analyses on millions of events with varying locations and t
 
 Note: Docker commands are exemplary. Follow the [Tutorial for downloading historical weather data](./tutorial_download_era5/) to get it working quickly.
 
-1. **Running Your Own Weather API:**
+2. **Running Your Own Weather API:**
 If you require an extensive amount of weather data through an API daily and wish to run your own weather API, you can obtain current weather data from Open-Meteo on AWS Open Data. The Open-Meteo Docker container can listen for newly published data and keep your local database up-to-date. Similar to using past weather data:
 - Install the Open-Meteo Docker image
 - Start the data synchronization for a given weather model `docker run open-meteo sync ncep_gfs013 temperature_2m,relative_humidity_2m,wind_u_component_10m,wind_v_component_10m --past_days 3 --repeat-interval 5`
 - Launch the API instance and get the latest forecast from your new API endpoint
 
 To help you in setting up your own weather API you can follow [this tutorial](./tutorial_weather_api/) to setup your own weather API.
+
+3. **Direct access to OM files**:
+The `data_spatial` and `data_run` layouts have been recently added. We will provide instructions for access this data using Python and other programming languages in the upcoming months.
 
 
 ## File Format
