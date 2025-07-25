@@ -21,7 +21,7 @@ All available data can be explored using the [S3 explorer](https://openmeteo.s3.
 ### Weather Forecast Models
 
 Weather models can be broadly categories by their coverage:
-- Global models run at lower resolution (11-50 km) but offer 7 to 16 days of forecast
+- Global models run at lower resolution (11-50 km) but offer 7-16 days of forecast
 - Local models use higher resolution (1-7 km) but offer only 2-5 days of weather forecast
 
 Local models are nested into global models and rely on boundary conditions that drive large scale weather patterns. The Open-Meteo API seamlessly combines local and global weather models. Depending on your use-case, you may want to use different weather models. E.g. If you only need 2 days of forecast for North America, use `ncep_hrrr_conus`, but for more than 2 days, you have to add `ncep_gfs013`. Further more, you can select only `temperature_2m` to more fine grained of how much data is being transferred.
@@ -29,41 +29,43 @@ Local models are nested into global models and rely on boundary conditions that 
 Ideally, familiarise yourself with the [Weather Forecast API](https://open-meteo.com/en/docs) and explore the [S3 explorer](https://openmeteo.s3.amazonaws.com/index.html#data/) to select the right weather models.
 
 
-| Model                           | Region                           | Resolution             | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
-| ------------------------------- | -------------------------------- | ---------------------- | ------------ | --------------- | -------------- | ------------------- | -------------------- | --------------- |
-| dwd_icon                        | Global                           | 0.1° (~11 km)          | Hourly       | 7.5 days        | Every 6 hours  | 49                  | 5 (18 levels)        | 2023-12-15      |
-| dwd_icon_eu                     | Europe                           | 0.0625° (~7 km)        | Hourly       | 5 days          | Every 3 hours  | 42                  | 5 (17 levels)        | 2023-12-15      |
-| dwd_icon_d2                     | Central Europe                   | 0.02° (~2 km)          | Hourly       | 2 days          | Every 3 hours  | 44                  | 5 (11 levels)        | 2023-12-15      |
-| dwd_icon_d2_15min               | "                                | "                      | 15-Minutely  | "               | "              | 8                   | -                    | 2023-12-15      |
-| ncep_gfs013                     | Global                           | 0.11° (~13 km)         | Hourly       | 16 days         | Every 6 hours  | 27                  | -                    | 2023-12-15      |
-| ncep_gfs025                     | Global                           | 0.25° (~25 km)         | Hourly       | 16 days         | Every 6 hours  | 11                  | 7 (38 levels)        | 2023-12-15      |
-| ncep_nbm_conus                  | U.S. Conus                       | 2.5 km                 | Hourly       | 11 days         | Every hour     | 20                  | -                    | 2024-10-03      |
-| ncep_hrrr_conus                 | U.S. Conus                       | 3 km                   | Hourly       | 2 days          | Every hour     | 23                  | 7 (39 levels)        | 2023-12-15      |
-| ncep_hrrr_conus_15min           | "                                | "                      | 15-Minutely  | "               | "              | 12                  | -                    | 2023-12-15      |
-| meteofrance_arpege_world025     | Global                           | 0.25° (~25 km)         | Hourly       | 4 days          | Every 6 hours  | 29                  | 6 (23 levels)        | 2023-12-15      |
-| meteofrance_arpege_europe       | Europe                           | 0.1° (~11 km)          | Hourly       | 4 days          | Every 6 hours  | 29                  | 6 (23 levels)        | 2023-12-15      |
-| meteofrance_arome_france0025    | France                           | 0.025° (~2.5 km)       | Hourly       | 51 hours        | Every 3 hours  | 29                  | 6 (24 levels)        | 2023-12-15      |
-| meteofrance_arome_france_hd     | "                                | 0.01° (~1.5 km)        | "            | "               | "              | 12                  | -                    | 2023-12-15      |
-| ecmwf_ifs04                     | Global                           | 0.4 (~44 km)           | 3-Hourly     | 10 days         | Every 6 hours  | 14                  | 7 (9 levels)         | 2023-12-15      |
-| ecmwf_ifs025                    | Global                           | 0.25 (~25 km)          | 3-Hourly     | 10 days         | Every 6 hours  | 14                  | 7 (9 levels)         | 2024-02-03      |
-| ukmo_global_deterministic_10km  | Global                           | 0.09 (~10 km)          | Hourly       | 7 days          | Every 6 hours  | 19                  | 5 (59 levels)        | 2022-03-01      |
-| ukmo_uk_deterministic_2km       | UK, Ireland                      | 2 km                   | Hourly       | 2 days          | Every hour     | 24                  | 5 (59 levels)        | 2022-03-01      |
-| cmc_gem_gdps                    | Global                           | 0.15° (~15 km)         | 3-Hourly     | 10 days         | Every 12 hours | 24                  | 5 (31 levels)        | 2023-12-15      |
-| cmc_gem_rdps                    | North America, North Pole        | 10 km                  | Hourly       | 3.5 days        | Every 6 hours  | 24                  | 5 (31 levels)        | 2023-12-15      |
-| cmc_gem_hrdps                   | Canada, Northern US              | 2.5 km                 | Hourly       | 2 days          | Every 6 hours  | 24                  | 5 (28 levels)        | 2023-12-15      |
-| jma_gsm                         | Global                           | 0.5° (~55 km)          | 6-Hourly     | 11 days         | Every 6 hours  | 8                   | 6 (11 levels)        | 2023-12-15      |
-| jma_msm                         | Japan, Korea                     | 0.05° (~5 km)          | Hourly       | 4 days          | Every 3 hours  | 11                  | -                    | 2023-12-15      |
-| metno_nordic_pp                 | Norway, Denmark, Sweden, Finland | 1 km                   | Hourly       | 2.5 days        | Every hour     | 9                   | -                    | 2023-12-15      |
-| cma_grapes_global               | Global                           | 0.125° (~13 km)        | 3-Hourly     | 10 days         | Every 6 hours  | 48                  | 8                    | 2024-01-01      |
-| bom_access_global               | Global                           | 0.175°/0.117° (~15 km) | Hourly       | 10 days         | Every 6 hours  | 33                  | -                    | 2024-01-01      |
-| dmi_harmonie_arome_europe       | Central & Northern Europe        | 2 km                   | Hourly       | 60 hours        | Every 3 hours  | 39                  | -                    | 2024-07-01      |
-| knmi_harmonie_arome_europe      | Central & Northern Europe        | 5.5 km                 | Hourly       | 60 hours        | Every hour     | 22                  | 5 (5 levels)         | 2024-07-01      |
-| knmi_harmonie_arome_netherlands | Netherlands, Belgium             | 2 km                   | Hourly       | 60 hours        | Every hour     | 28                  | -                    | 2024-07-01      |
-| kma_gdps                        | Global                           | 0.13° (~12 km)         | 3-Hourly     | 12 days         | Every 6 hours  | 28                  | -                    | 2024-07-01      |
-| kma_ldps                        | South And North Korea            | 1.5 km                 | Hourly       | 2 days          | Every 6 hours  | 28                  | -                    | 2024-07-01      |
-| italia_meteo_arpae_icon_2i      | Southern Europe                  | 2 km                   | Hourly       | 60 hours        | Every 12 hours | 28                  | -                    | 2025-04-13      |
-| meteoswiss_icon_ch1             | Central Europe                   | 1 km                   | Hourly       | 33 hours        | Every 3 hours  | 28                  | -                    | 2025-07-20      |
-| meteoswiss_icon_ch2             | Central Europe                   | 2 km                   | Hourly       | 120 hours       | Every 6 hours  | 28                  | -                    | 2025-07-20      |
+| Model                             | Region                           | Resolution             | Timeinterval | Forecast length | Updates        | # Surface Variables | # Pressure Variables | Available since |
+| --------------------------------- | -------------------------------- | ---------------------- | ------------ | --------------- | -------------- | ------------------- | -------------------- | --------------- |
+| dwd_icon                          | Global                           | 0.1° (~11 km)          | Hourly       | 7.5 days        | Every 6 hours  | 49                  | 5 (18 levels)        | 2023-12-15      |
+| dwd_icon_eu                       | Europe                           | 0.0625° (~7 km)        | Hourly       | 5 days          | Every 3 hours  | 42                  | 5 (17 levels)        | 2023-12-15      |
+| dwd_icon_d2                       | Central Europe                   | 0.02° (~2 km)          | Hourly       | 2 days          | Every 3 hours  | 44                  | 5 (11 levels)        | 2023-12-15      |
+| dwd_icon_d2_15min                 | Central Europe                   | 0.02° (~2 km)          | 15-Minutely  | 2 days          | Every 3 hours  | 8                   | -                    | 2023-12-15      |
+| ncep_gfs013                       | Global                           | 0.11° (~13 km)         | Hourly       | 16 days         | Every 6 hours  | 27                  | -                    | 2023-12-15      |
+| ncep_gfs025                       | Global                           | 0.25° (~25 km)         | Hourly       | 16 days         | Every 6 hours  | 11                  | 7 (38 levels)        | 2023-12-15      |
+| ncep_nbm_conus                    | U.S. Conus                       | 2.5 km                 | Hourly       | 11 days         | Every hour     | 20                  | -                    | 2024-10-03      |
+| ncep_hrrr_conus                   | U.S. Conus                       | 3 km                   | Hourly       | 2 days          | Every hour     | 23                  | 7 (39 levels)        | 2023-12-15      |
+| ncep_hrrr_conus_15min             | U.S. Conus                       | 3 km                   | 15-Minutely  | 2 days          | Every hour     | 12                  | -                    | 2023-12-15      |
+| meteofrance_arpege_world025       | Global                           | 0.25° (~25 km)         | Hourly       | 4 days          | Every 6 hours  | 29                  | 6 (23 levels)        | 2023-12-15      |
+| meteofrance_arpege_europe         | Europe                           | 0.1° (~11 km)          | Hourly       | 4 days          | Every 6 hours  | 29                  | 6 (23 levels)        | 2023-12-15      |
+| meteofrance_arome_france0025      | France                           | 0.025° (~2.5 km)       | Hourly       | 51 hours        | Every 3 hours  | 29                  | 6 (24 levels)        | 2023-12-15      |
+| meteofrance_arome_france_hd       | "                                | 0.01° (~1.5 km)        | Hourly       | 51 hours        | Every 3 hours  | 12                  | -                    | 2023-12-15      |
+| meteofrance_arome_france_15min    | "                                | 0.025° (~2.5 km)       | 15-Minutely  | 2 days          | Every hour     | 12                  | -                    | 2023-12-15      |
+| meteofrance_arome_france_hd_15min | "                                | 0.01° (~1.5 km)        | 15-Minutely  | 2 days          | Every hour     | 7                   | -                    | 2023-12-15      |
+| ecmwf_ifs025                      | Global                           | 0.25 (~25 km)          | 3-Hourly     | 15 days         | Every 6 hours  | 14                  | 7 (9 levels)         | 2024-02-03      |
+| ecmwf_aifs025_single              | Global                           | 0.25 (~25 km)          | 6-Hourly     | 15 days         | Every 6 hours  | 14                  | 6 (12 levels)        | 2025-02-20      |
+| ukmo_global_deterministic_10km    | Global                           | 0.09 (~10 km)          | Hourly       | 7 days          | Every 6 hours  | 19                  | 5 (59 levels)        | 2022-03-01      |
+| ukmo_uk_deterministic_2km         | UK, Ireland                      | 2 km                   | Hourly       | 2 days          | Every hour     | 24                  | 5 (59 levels)        | 2022-03-01      |
+| cmc_gem_gdps                      | Global                           | 0.15° (~15 km)         | 3-Hourly     | 10 days         | Every 12 hours | 24                  | 5 (31 levels)        | 2023-12-15      |
+| cmc_gem_rdps                      | North America, North Pole        | 10 km                  | Hourly       | 3.5 days        | Every 6 hours  | 24                  | 5 (31 levels)        | 2023-12-15      |
+| cmc_gem_hrdps                     | Canada, Northern US              | 2.5 km                 | Hourly       | 2 days          | Every 6 hours  | 24                  | 5 (28 levels)        | 2023-12-15      |
+| jma_gsm                           | Global                           | 0.5° (~55 km)          | 6-Hourly     | 11 days         | Every 6 hours  | 8                   | 6 (11 levels)        | 2023-12-15      |
+| jma_msm                           | Japan, Korea                     | 0.05° (~5 km)          | Hourly       | 4 days          | Every 3 hours  | 11                  | -                    | 2023-12-15      |
+| metno_nordic_pp                   | Norway, Denmark, Sweden, Finland | 1 km                   | Hourly       | 2.5 days        | Every hour     | 9                   | -                    | 2023-12-15      |
+| cma_grapes_global                 | Global                           | 0.125° (~13 km)        | 3-Hourly     | 10 days         | Every 6 hours  | 48                  | 8                    | 2024-01-01      |
+| bom_access_global                 | Global                           | 0.175°/0.117° (~15 km) | Hourly       | 10 days         | Every 6 hours  | 33                  | -                    | 2024-01-01      |
+| dmi_harmonie_arome_europe         | Central & Northern Europe        | 2 km                   | Hourly       | 60 hours        | Every 3 hours  | 39                  | -                    | 2024-07-01      |
+| knmi_harmonie_arome_europe        | Central & Northern Europe        | 5.5 km                 | Hourly       | 60 hours        | Every hour     | 22                  | 5 (5 levels)         | 2024-07-01      |
+| knmi_harmonie_arome_netherlands   | Netherlands, Belgium             | 2 km                   | Hourly       | 60 hours        | Every hour     | 28                  | -                    | 2024-07-01      |
+| kma_gdps                          | Global                           | 0.13° (~12 km)         | 3-Hourly     | 12 days         | Every 6 hours  | 28                  | -                    | 2024-07-01      |
+| kma_ldps                          | South And North Korea            | 1.5 km                 | Hourly       | 2 days          | Every 6 hours  | 28                  | -                    | 2024-07-01      |
+| italia_meteo_arpae_icon_2i        | Southern Europe                  | 2 km                   | Hourly       | 60 hours        | Every 12 hours | 28                  | -                    | 2025-04-13      |
+| meteoswiss_icon_ch1               | Central Europe                   | 1 km                   | Hourly       | 33 hours        | Every 3 hours  | 28                  | -                    | 2025-07-20      |
+| meteoswiss_icon_ch2               | Central Europe                   | 2 km                   | Hourly       | 120 hours       | Every 6 hours  | 28                  | -                    | 2025-07-20      |
 
 ### Marine Wave Models
 
