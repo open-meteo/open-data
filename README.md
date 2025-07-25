@@ -142,7 +142,7 @@ The update process follows these steps:
 
 2. **Rolling Timeseries** (`data/`): Once all time-steps have been downloaded, the time-series database at `data/` is updated. Data is organized into chunks spanning 3 to 14 days per file. These files are overwritten with the newest data during each update cycle. Chunk lengths are individually tuned per model to strike a balance between file size, compression efficiency, and read performance. Upon update, metadata is written to `data/<model>/static/meta.json`.
 
-3. **Run-Based Data** (`data_run/`): In the final step, a full distribution is generated for data_run. All timestamps are transposed into a time-series-optimized format. To reduce file size, only 13 pressure levels and model levels below 200 meters are retained for each model run. Upon completion, metadata is written to `data_run/<model>/<run>/meta.json`.
+3. **Run-Based Data** (`data_run/`): In the final step, a full distribution is generated for data_run. All timestamps are transposed into a time-series-optimized format.To minimize file size, only 13 pressure levels and model levels below 200 meters are included. At most, one model run every 3 hours is retained. Upon completion, metadata is written to `data_run/<model>/<run>/meta.json`.
 
 Caveats:
 - Time steps in `data_spatial/` and `data_run/` reflect the native resolution of the underlying weather model. Some models provide high-frequency (e.g. 1-hourly) forecasts for initial hours, then shift to coarser resolutions (e.g. 3- or 6-hourly) for later periods. In contrast, the rolling timeseries distribution in `data/` always interpolates all data to the highest available temporal resolution.
