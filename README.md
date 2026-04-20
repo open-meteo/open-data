@@ -188,11 +188,31 @@ The `data_spatial` and `data_run` layouts have been recently added. We will prov
 ## File Format
 Data is stored in a custom file format called OM-Files, designed for chunked data access and efficient compression. The structure is similar to NetCDF or HDF5 but with significantly lower overhead.
 
-OM-Files are cloud-native and can be accessed directly from S3. Thanks to small chunk sizes, users can retrieve only the data they need—without downloading the entire file. Chunks typically range from 1–4 KiB. For example, a temperature dataset like ERA5-Land might be 9 GiB, but reading data for a single location requires just 16 KiB—including all metadata, indices, and data.
+OM-Files are cloud-native and can be accessed directly from S3. Thanks to small chunk sizes, users can retrieve only the data they need -- without downloading the entire file. Chunks typically range from 1–4 KiB. For example, a temperature dataset like ERA5-Land might be 9 GiB, but reading data for a single location requires just 16 KiB -- including all metadata, indices, and data.
 
 OM-Files can also be written sequentially and streamed directly to S3. Paired with a fast chunking and compression pipeline, this allows for data generation at GB/s speeds. This high performance is essential for working with large-scale meteorological datasets. Open-Meteo alone processes over 2 TiB of weather data every day.
 
-The underlying OM-File library is implemented in C — [source code available here](https://github.com/open-meteo/om-file-format). OM-Files can also be read from [Python](https://github.com/open-meteo/python-omfiles), [Rust](https://github.com/open-meteo/rust-omfiles), [Swift](https://github.com/open-meteo/om-file-format/tree/main/Swift), and [TypeScript WASM](https://github.com/open-meteo/typescript-omfiles).
+The underlying OM-File library is implemented in C -- [source code available here](https://github.com/open-meteo/om-file-format). OM-Files can also be read from [Python](https://github.com/open-meteo/python-omfiles), [Rust](https://github.com/open-meteo/rust-omfiles), [Swift](https://github.com/open-meteo/om-file-format/tree/main/Swift), and [TypeScript/WASM](https://github.com/open-meteo/typescript-omfiles).
+
+### Coordinate Reference Systems (CRS)
+
+For highest accuracy, Open-Meteo typically stores weather data in the model native grid resolution. If this is not possible or adequate for some reason, remapping to another suitable grid is executed during data download.
+The explicit grid-point locations in WGS84 geographic coordinates are not explicitly stored in the files. Instead, OM-Files provide the ability to derive these coordinates using [**OGC WKT** strings](https://www.ogc.org/standards/wkt-crs/). This is compatible with standard (Python) libraries like `pyproj` or `cartopy` to interpret the grid geometry. The WKT string is either directly stored in a dedicated scalar child named `crs_wkt` (in the [`data_spatial`](#data-organisation) files).
+
+#### Supported Projections
+The following projection types are commonly used and encoded via WKT2:
+- **Regular Lat/Lon**: Standard WGS84 (EPSG:4326) grid.
+- **Rotated Lat/Lon**: Used by many regional models (e.g., COSMO, ICON-D2). Encoded using `DERIVINGCONVERSION` with a rotation method.
+- **Lambert Conformal Conic**: Common for mid-latitude regional models (e.g., Aladin, AROME).
+- **Stereographic**: Often used for polar regions or specific high-resolution regional grids.
+- **Lambert Azimuthal Equal-Area**: Used for European-wide statistical grids.
+
+#### Grid Extent (BBOX)
+The spatial extent of the grid is encoded within the `USAGE[BBOX[...]]` section of the WKT string. Following the OGC WKT2 standard, this bounding box is defined in **WGS84 geographic coordinates** (longitude and latitude values of the lower left and upper right corner points of the grid: `[south, west, north, east]`), regardless of the native projection of the data.
+
+#### Limitations
+- **Gaussian Grids**: While OM-Files support Reduced Gaussian Grids (used by ECMWF IFS), these are not strictly map projections but rather non-regular horizontal grids. The `crs_wkt` for these grids is provided as a `GEOGCRS` with a `REMARK` indicating the Gaussian type (e.g., `O1280`), but standard GIS libraries cannot automatically compute the individual point locations from the WKT string alone.
+- **Python Usage**: In Python, the `python-omfiles` library provides an `OmGrid` interface that can parse these WKT strings and handle coordinate transformations automatically for both regular and projected grids.
 
 # License
 
